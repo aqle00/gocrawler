@@ -1,1 +1,7 @@
+.agents/
+.aider-desk/
+.claude/
+.qwen/
+skills/
+skills-lock.json
 crawler
