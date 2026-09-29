@@ -43,4 +43,5 @@ func main() {
 	for normalizedURL, count := range cfg.pages {
 		fmt.Printf("%d - %s\n", count, normalizedURL)
 	}
+	writeJSONReport(cfg.pages, "report.json")
 }
