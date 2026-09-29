@@ -14,8 +14,15 @@ func (cfg *config) crawlPage(rawCurrentURL string) {
 		<-cfg.concurrencyControl
 		cfg.wg.Done()
 	}()
+
+	if cfg.overCrawlLimit() {
+		return
+	}
+
 	// check if rawCurrentURL belongs to baseURL
 	// if not just return early
+	//example: currentURL: fb.com/something, baseURL: fb.com ->crawl
+	//						google.com/somthgn			fb.com -> return
 	parsedCurrentURL, err := url.Parse(rawCurrentURL)
 	if err != nil {
 		fmt.Printf("couldnt parse base url, error: %v\n", err)

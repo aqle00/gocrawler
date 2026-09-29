@@ -7,6 +7,7 @@ import (
 )
 
 type config struct {
+	maxPages           int
 	pages              map[string]PageData
 	baseURL            *url.URL
 	mu                 *sync.Mutex
@@ -34,7 +35,7 @@ func (cfg *config) setPageData(normalizedURL string, pageData PageData) {
 	cfg.pages[normalizedURL] = pageData
 }
 
-func configure(rawBaseURL string, maxConcurrency int) (*config, error) {
+func configure(rawBaseURL string, maxConcurrency int, maxPages int) (*config, error) {
 	// make a new config struct with these data
 	baseUrl, err := url.Parse(rawBaseURL)
 	if err != nil {
@@ -42,6 +43,7 @@ func configure(rawBaseURL string, maxConcurrency int) (*config, error) {
 	}
 
 	return &config{
+		maxPages:           maxPages,
 		pages:              make(map[string]PageData),
 		baseURL:            baseUrl,
 		mu:                 &sync.Mutex{},
@@ -49,3 +51,18 @@ func configure(rawBaseURL string, maxConcurrency int) (*config, error) {
 		wg:                 &sync.WaitGroup{},
 	}, nil
 }
+
+func (cfg *config) overCrawlLimit() (overcap bool) {
+	cfg.mu.Lock()
+	defer cfg.mu.Unlock()
+	if len(cfg.pages) > cfg.maxPages {
+		return true
+	}
+	return false
+}
+
+// func (cfg *config) pagesLen() int {
+// 	cfg.mu.Lock()
+// 	defer cfg.mu.Unlock()
+// 	return len(cfg.pages)
+// }
